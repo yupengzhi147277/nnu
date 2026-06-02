@@ -154,7 +154,10 @@ async function initP2PAsHost() {
   }
 }
 
-async function initP2PAsGuest() {
+let connectionRetries = 0
+const maxRetries = 3
+
+async function initP2PAsGuest(retryCount = 0) {
   if (typeof P2PManager === 'undefined') {
     alert('P2P 模块加载失败')
     return
@@ -162,7 +165,11 @@ async function initP2PAsGuest() {
 
   const status = document.getElementById('connectionStatus')
   if (status) {
-    status.textContent = '● 连接中...'
+    if (retryCount > 0) {
+      status.textContent = `● 连接中... (重试 ${retryCount}/${maxRetries})`
+    } else {
+      status.textContent = '● 连接中...'
+    }
     status.style.color = '#ffc107'
   }
 
@@ -219,8 +226,16 @@ async function initP2PAsGuest() {
     }
   } catch (err) {
     console.error('加入房间失败:', err)
-    alert('加入房间失败：' + err.message)
-    showRoomSection()
+    retryCount++
+    if (retryCount < maxRetries) {
+      console.log(`尝试重新连接，第 ${retryCount} 次`)
+      setTimeout(() => {
+        initP2PAsGuest(retryCount)
+      }, 2000)
+    } else {
+      alert('连接失败：' + err.message + '\n\n建议检查：\n1. 网络连接\n2. 房间号是否正确\n3. 房主是否已创建房间')
+      showRoomSection()
+    }
   }
 }
 

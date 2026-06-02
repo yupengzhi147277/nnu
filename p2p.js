@@ -6,6 +6,7 @@ const P2PManager = (function() {
   let myPlayerId = ''
   let myPlayerName = ''
   let messageHandlers = {}
+  let initTimeout = null
 
   function init(playerId, playerName, handlers) {
     return new Promise((resolve, reject) => {
@@ -19,35 +20,62 @@ const P2PManager = (function() {
       
       console.log('初始化 P2P:', { originalId: playerId, peerId: peerId, isHost: useHostId })
       
+      // 设置连接超时（15秒）
+      initTimeout = setTimeout(() => {
+        console.error('P2P连接超时')
+        if (peer) {
+          try {
+            peer.destroy()
+          } catch (e) {}
+        }
+        reject(new Error('连接超时，请检查网络连接或稍后重试'))
+      }, 15000)
+      
       try {
         peer = new Peer(peerId, {
-          debug: 2,
+          debug: 3,
+          host: 'peerjs-server.herokuapp.com',
+          port: 443,
+          path: '/',
+          secure: true,
           config: {
             iceServers: [
+              // STUN 服务器
               { url: 'stun:stun.l.google.com:19302' },
               { url: 'stun:stun1.l.google.com:19302' },
               { url: 'stun:stun2.l.google.com:19302' },
               { url: 'stun:stun3.l.google.com:19302' },
               { url: 'stun:stun4.l.google.com:19302' },
-              { url: 'stun:stun.ekiga.net' },
-              { url: 'stun:stun.fwdnet.net' },
-              { url: 'stun:stun.ideasip.com' },
-              { url: 'stun:stun.iptel.org' },
-              { url: 'stun:stun.rixtelecom.se' },
-              { url: 'stun:stun.schlund.de' },
-              { url: 'stun:stunserver.org' },
-              { url: 'stun:stun.softjoys.com' },
-              { url: 'stun:stun.voiparound.com' },
-              { url: 'stun:stun.voipbuster.com' },
-              { url: 'stun:stun.voipstunt.com' },
-              { url: 'stun:stun.voxgratia.org' },
-              { url: 'stun:stun.xten.com' }
-            ]
+              // TURN 服务器（用于穿透严格NAT）
+              {
+                url: 'turn:numb.viagenie.ca',
+                credential: 'muazkh',
+                username: 'webrtc@live.com'
+              },
+              {
+                url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+                credential: 'webrtc',
+                username: 'webrtc'
+              },
+              {
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
+              },
+              {
+                url: 'turn:turnserver.openvpn.net:443',
+                credential: 'openvpn',
+                username: 'openvpn'
+              }
+            ],
+            iceTransportPolicy: 'all',
+            bundlePolicy: 'max-bundle'
           }
         })
 
         peer.on('open', (id) => {
           console.log('P2P连接已建立，ID:', id)
+          clearTimeout(initTimeout)
           updateStatus('● 已连接')
           resolve()
         })
@@ -59,12 +87,15 @@ const P2PManager = (function() {
 
         peer.on('error', (err) => {
           console.error('P2P错误:', err.type, err)
+          clearTimeout(initTimeout)
           if (err.type === 'peer-unavailable') {
-            reject(new Error('房间不存在或已关闭'))
+            reject(new Error('房间不存在或已关闭，请确认房间号正确'))
           } else if (err.type === 'unavailable-id') {
             reject(new Error('ID已被占用，请刷新页面重试'))
+          } else if (err.type === 'timeout') {
+            reject(new Error('连接超时，请检查网络或稍后重试'))
           } else {
-            reject(err)
+            reject(new Error('连接失败: ' + err.message))
           }
         })
 
