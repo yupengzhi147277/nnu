@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>南师专属 - 谁是卧底</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <div class="brand-tag">南师专属</div>
+  <div class="container">
+    <div class="logo-section">
+      <span class="logo">🎭</span>
+      <span class="app-title">谁是卧底</span>
+      <span class="app-subtitle">经典聚会游戏 · P2P多人在线</span>
+    </div>
+
+    <div class="room-section" id="roomSection">
+      <div class="card">
+        <span class="card-title">进入房间</span>
+        <div class="form-item">
+          <span class="form-label">你的名字</span>
+          <input type="text" class="player-input" id="playerNameInput" placeholder="输入你的名字" maxlength="10">
+        </div>
+        <div class="room-buttons">
+          <button class="btn-primary" onclick="createRoom()">🏠 创建房间</button>
+          <div class="divider">
+            <span>或</span>
+          </div>
+          <div class="join-room">
+            <input type="text" class="player-input" id="roomCodeInput" placeholder="输入房间号" maxlength="6">
+            <button class="btn-secondary" onclick="joinRoom()">加入房间</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-setup" id="gameSetup" style="display: none;">
+      <div class="room-info">
+        <span class="room-code-display" id="roomCodeDisplay" style="display: none;"></span>
+        <span class="my-name" id="myName"></span>
+        <span class="connection-status" id="connectionStatus">● 连接中...</span>
+      </div>
+
+      <div class="card">
+        <span class="card-title">📋 已加入玩家 (<span id="currentPlayerCount">0</span>/<span id="maxPlayerCount">10</span>)</span>
+        <div class="players-list">
+          <div class="players-grid" id="playersGrid"></div>
+        </div>
+        <div class="online-players-hint" id="onlineHint">
+          <span class="hint-icon">💡</span>
+          <span class="hint-text">将房间号分享给朋友，朋友输入房间号即可加入</span>
+        </div>
+        <div class="share-link-section" id="shareLinkSection" style="display: none;">
+          <button class="btn-share" onclick="copyShareLink()">📋 复制邀请链接</button>
+          <span class="share-hint" id="shareHint"></span>
+        </div>
+        <div class="waiting-host-hint" id="waitingHint" style="display: none;">
+          <span class="hint-icon">⏳</span>
+          <span class="hint-text">等待房主输入词语...</span>
+        </div>
+      </div>
+
+      <div class="card host-only" id="hostSettings">
+        <span class="card-title">🎤 主持人设置</span>
+        
+        <div class="game-config-header">
+          <span class="card-subtitle">⚙️ 角色数量</span>
+        </div>
+        
+        <div class="role-config-grid">
+          <div class="config-item">
+            <span class="config-label">🎭 卧底</span>
+            <div class="stepper-small">
+              <span class="stepper-btn-small" onclick="decreaseSpy()">-</span>
+              <span class="stepper-value-small" id="spyCount">1</span>
+              <span class="stepper-btn-small" onclick="increaseSpy()">+</span>
+            </div>
+          </div>
+          <div class="config-item">
+            <span class="config-label">📝 白板</span>
+            <div class="stepper-small">
+              <span class="stepper-btn-small" onclick="decreaseBlank()">-</span>
+              <span class="stepper-value-small" id="blankCount">0</span>
+              <span class="stepper-btn-small" onclick="increaseBlank()">+</span>
+            </div>
+          </div>
+          <div class="config-item">
+            <span class="config-label">😇 天使</span>
+            <div class="stepper-small">
+              <span class="stepper-btn-small" onclick="decreaseAngel()">-</span>
+              <span class="stepper-value-small" id="angelCount">0</span>
+              <span class="stepper-btn-small" onclick="increaseAngel()">+</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+        
+        <div class="form-item">
+          <span class="form-label">👥 平民词</span>
+          <input type="text" class="player-input" id="civilianWordInput" placeholder="输入平民词语" maxlength="20">
+        </div>
+        
+        <div class="form-item">
+          <span class="form-label">🎭 卧底词</span>
+          <input type="text" class="player-input" id="spyWordInput" placeholder="输入卧底词语" maxlength="20">
+        </div>
+
+        <div class="assign-section" id="assignSection" style="display: none;">
+          <div class="assign-item" id="blankAssignSection" style="display: none;">
+            <span class="assign-label">📝 选择白板玩家</span>
+            <div class="assign-players" id="blankPlayers"></div>
+          </div>
+          <div class="assign-item" id="blankWordSection" style="display: none;">
+            <span class="assign-label">📝 白板提示词（可选）</span>
+            <input type="text" class="player-input" id="blankWordInput" placeholder="给白板的特殊提示" maxlength="20">
+          </div>
+          <div class="assign-item" id="angelAssignSection" style="display: none;">
+            <span class="assign-label">😇 选择天使玩家</span>
+            <div class="assign-players" id="angelPlayers"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-section">
+        <button class="btn-primary" id="startBtn" onclick="prepareStart()" disabled>开始游戏</button>
+        <button class="btn-secondary" onclick="showRoomSection()">返回</button>
+      </div>
+    </div>
+
+    <div class="rules-card">
+      <div class="rules">
+        <div class="rule-item">
+          <span class="rule-num">1</span>
+          <span class="rule-text">创建房间后将房间号分享给朋友</span>
+        </div>
+        <div class="rule-item">
+          <span class="rule-num">2</span>
+          <span class="rule-text">朋友输入房间号加入游戏</span>
+        </div>
+        <div class="rule-item">
+          <span class="rule-num">3</span>
+          <span class="rule-text">主持人设置词语</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="role-intro">
+      <div class="role-item">
+        <span class="role-icon">👥</span>
+        <span class="role-name">平民</span>
+        <span class="role-desc">得到平民词</span>
+      </div>
+      <div class="role-item">
+        <span class="role-icon">🎭</span>
+        <span class="role-name">卧底</span>
+        <span class="role-desc">得到卧底词</span>
+      </div>
+      <div class="role-item">
+        <span class="role-icon">📝</span>
+        <span class="role-name">白板</span>
+        <span class="role-desc">猜出两词获胜</span>
+      </div>
+      <div class="role-item">
+        <span class="role-icon">😇</span>
+        <span class="role-name">天使</span>
+        <span class="role-desc">知两词不知对应</span>
+      </div>
+      <div class="role-item">
+        <span class="role-icon">🎤</span>
+        <span class="role-name">主持</span>
+        <span class="role-desc">掌控全场</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="p2p.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

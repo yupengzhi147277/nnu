@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>谁是卧底 - 游戏结果</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="result-container">
+    <div class="result-card" id="resultCard">
+      <span class="result-icon" id="resultIcon">🎉</span>
+      <span class="result-title" id="resultTitle">平民胜利</span>
+      <span class="result-desc" id="resultDesc">恭喜！卧底已被找出！</span>
+    </div>
+
+    <div class="word-reveal">
+      <span class="reveal-title">本局词语</span>
+      <div class="reveal-words">
+        <div class="word-box civilian">
+          <span class="word-label">👥 平民词</span>
+          <span class="word-value" id="civilianWord"></span>
+        </div>
+        <div class="word-box spy">
+          <span class="word-label">🎭 卧底词</span>
+          <span class="word-value" id="spyWord"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="role-summary">
+      <span class="summary-title">角色分布</span>
+      <div class="summary-row">
+        <div class="summary-item civilian">
+          <span class="summary-count" id="civilianCount">0</span>
+          <span class="summary-label">👥 平民</span>
+        </div>
+        <div class="summary-item spy">
+          <span class="summary-count" id="spyCount">0</span>
+          <span class="summary-label">🎭 卧底</span>
+        </div>
+        <div class="summary-item blank">
+          <span class="summary-count" id="blankCount">0</span>
+          <span class="summary-label">📝 白板</span>
+        </div>
+        <div class="summary-item angel">
+          <span class="summary-count" id="angelCount">0</span>
+          <span class="summary-label">😇 天使</span>
+        </div>
+        <div class="summary-item host">
+          <span class="summary-count" id="hostCount">0</span>
+          <span class="summary-label">🎤 主持</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="players-reveal">
+      <span class="reveal-title">玩家身份</span>
+      <div class="players-list" id="playersList"></div>
+    </div>
+
+    <div class="action-section">
+      <button class="btn-primary" onclick="restartGame()">再来一局</button>
+      <button class="btn-secondary" onclick="goHome()">返回首页</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="result.js"></script>
+</body>
+</html>

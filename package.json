@@ -1,0 +1,12 @@
+{
+  "name": "who-is-spy",
+  "version": "1.0.0",
+  "description": "谁是卧底 - 多人在线聚会游戏（P2P版本）",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["谁是卧底", "多人游戏", "聚会游戏", "P2P", "WebRTC"],
+  "author": "",
+  "license": "MIT"
+}

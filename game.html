@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>南师专属 - 谁是卧底</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <div class="brand-tag">南师专属</div>
+  <div class="container game-container">
+    <div class="game-header">
+      <div class="game-info">
+        <span class="round">第 <span id="round">1</span> 轮</span>
+        <span class="room-code-display" id="roomCodeDisplay"></span>
+        <span class="host-name" id="hostName"></span>
+      </div>
+      <div class="connection-status" id="connectionStatus">● 连接中...</div>
+    </div>
+
+    <div class="word-card" id="wordCard">
+      <span class="word-label">你的词语</span>
+      <div class="word-text" id="wordText">-</div>
+      <button class="btn-hide" onclick="hideWord()">隐藏词语</button>
+    </div>
+
+    <div class="special-notice angel-notice" id="angelNotice" style="display: none;">
+      <span class="notice-title">特殊玩家提示</span>
+      <span class="notice-text">你看到两个词，但不知道哪个对应哪个词</span>
+      <div class="angel-words">
+        <span>词语1：<span id="angelWord1">-</span></span>
+        <span>词语2：<span id="angelWord2">-</span></span>
+      </div>
+    </div>
+
+    <div class="special-notice blank-notice" id="blankNotice" style="display: none;">
+      <span class="notice-title">特殊玩家提示</span>
+      <span class="notice-text">你没有词语</span>
+      <span class="notice-text">猜出所有词可获胜</span>
+      <div class="blank-hint" id="blankHint" style="display: none;">
+        <span>主持人提示：<span id="blankHintText">-</span></span>
+      </div>
+    </div>
+
+    <div class="special-notice host-notice" id="hostNotice" style="display: none;">
+      <span class="notice-title">🎤 主持人</span>
+      <span class="notice-text">你掌控游戏，可以强制淘汰或结束游戏</span>
+    </div>
+
+    <div class="action-card" id="actionCard">
+      <button class="btn-primary" onclick="showMyInfo()">查看我的身份和词语</button>
+    </div>
+
+    <div class="host-panel" id="hostPanel" style="display: none;">
+      <span class="panel-title">🎤 主持人控制台</span>
+      <div class="host-words-display">
+        <div class="word-info civilian">
+          <span>👥 平民词：</span>
+          <span id="hostCivilianWord">-</span>
+        </div>
+        <div class="word-info spy">
+          <span>🎭 卧底词：</span>
+          <span id="hostSpyWord">-</span>
+        </div>
+      </div>
+      <div class="host-players-section">
+        <span class="section-subtitle">📋 玩家列表</span>
+        <div class="host-players-grid" id="hostPlayersGrid"></div>
+      </div>
+      <div class="host-actions">
+        <button class="btn-danger" onclick="openEliminateModal()">🔨 强制淘汰</button>
+        <button class="btn-secondary" onclick="nextRound()">⏭️ 下一轮</button>
+        <button class="btn-primary" onclick="endGame()">🏁 结束游戏</button>
+      </div>
+    </div>
+
+    <div class="modal" id="eliminateModal">
+      <div class="modal-content">
+        <span class="modal-title">选择要淘汰的玩家</span>
+        <div class="modal-players" id="modalPlayers"></div>
+        <button class="btn-secondary" onclick="closeEliminateModal()">取消</button>
+      </div>
+    </div>
+
+    <div class="modal" id="winnerModal">
+      <div class="modal-content">
+        <span class="winner-title" id="winnerTitle">🎉 游戏结束</span>
+        <div class="winner-info" id="winnerInfo"></div>
+        <button class="btn-primary" onclick="goToResult()">查看完整结果</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="p2p.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
